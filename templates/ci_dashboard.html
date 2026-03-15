@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}CI Staff Dashboard{% endblock %}
+{% block content %}
+<div class="top-bar">
+    <h2>CI Staff Dashboard</h2>
+    <div class="top-bar-actions">
+        <button class="btn btn-outline-secondary">
+            <i class="bi bi-three-dots-vertical"></i>
+        </button>
+    </div>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card blue">
+        <div class="stat-card-icon blue">
+            <i class="bi bi-clipboard-check"></i>
+        </div>
+        <h3>{{ applications|length }}</h3>
+        <p>Total Assigned</p>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-icon yellow">
+            <i class="bi bi-hourglass-split"></i>
+        </div>
+        <h3>{{ applications|selectattr('status', 'equalto', 'assigned_to_ci')|list|length }}</h3>
+        <p>Pending Interview</p>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-icon blue">
+            <i class="bi bi-check-circle-fill"></i>
+        </div>
+        <h3>{{ applications|selectattr('status', 'equalto', 'ci_completed')|list|length }}</h3>
+        <p>Completed</p>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-icon yellow">
+            <i class="bi bi-percent"></i>
+        </div>
+        <h3>{{ "%.0f"|format((applications|selectattr('status', 'equalto', 'ci_completed')|list|length / applications|length * 100) if applications|length > 0 else 0) }}%</h3>
+        <p>Completion Rate</p>
+    </div>
+</div>
+
+<div class="content-card">
+    <div class="content-card-header">
+        <h5>Assigned Applications</h5>
+        <span class="badge bg-warning">{{ applications|selectattr('status', 'equalto', 'assigned_to_ci')|list|length }} Pending</span>
+    </div>
+    <div class="content-card-body">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Member Name</th>
+                    <th>Loan Amount</th>
+                    <th>Status</th>
+                    <th>Submitted By</th>
+                    <th>Submitted</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for app in applications %}
+                <tr>
+                    <td><strong>#{{ app.id }}</strong></td>
+                    <td>{{ app.member_name }}</td>
+                    <td><strong>₱{{ "{:,.2f}".format(app.loan_amount) }}</strong></td>
+                    <td>
+                        <span class="badge bg-{% if app.status == 'ci_completed' %}success{% else %}warning{% endif %}">
+                            {{ app.status.replace('_', ' ').title() }}
+                        </span>
+                    </td>
+                    <td>{{ app.loan_staff_name }}</td>
+                    <td>{{ app.submitted_at[:16] }}</td>
+                    <td>
+                        <a href="{{ url_for('ci_application', id=app.id) }}" class="btn btn-sm btn-{% if app.status == 'ci_completed' %}primary{% else %}warning{% endif %}">
+                            <i class="bi bi-{% if app.status == 'ci_completed' %}eye{% else %}pencil{% endif %}"></i> 
+                            {% if app.status == 'ci_completed' %}View{% else %}Process{% endif %}
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

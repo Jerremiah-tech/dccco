@@ -1,0 +1,7 @@
+Flask>=3.1.0
+Flask-Login>=0.6.3
+Flask-SocketIO>=5.6.0
+python-socketio>=5.16.0
+Werkzeug>=3.1.0
+resend>=2.0.0
+python-dotenv>=1.0.0
